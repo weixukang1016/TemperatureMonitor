@@ -58,10 +58,9 @@ public class SocketServer {
                         //处理逻辑：xmlStringToEsb为处理结果
                         //返回给客户端
                         if (sb.length() == 0) {
-                            testService.saveData("received null data");
-                        } else {
-                            testService.saveData(sb.toString());
+                            sb.append("received null data");
                         }
+                        testService.saveData(sb.toString());
                         sendMessage(socket, sb.toString());
                         socket.close();
                     } catch (IOException e) {
