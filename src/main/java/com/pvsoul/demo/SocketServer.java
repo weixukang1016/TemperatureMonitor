@@ -54,10 +54,15 @@ public class SocketServer {
                 Runnable runnable = () -> {
                     try {
                         //接收客户端数据
-                        StringBuilder xmlString = onMessage(socket);
+                        StringBuilder sb = onMessage(socket);
                         //处理逻辑：xmlStringToEsb为处理结果
                         //返回给客户端
-                        sendMessage(socket, xmlString.toString());
+                        if (sb.length() == 0) {
+                            testService.saveData("received null data");
+                        } else {
+                            testService.saveData(sb.toString());
+                        }
+                        sendMessage(socket, sb.toString());
                         socket.close();
                     } catch (IOException e) {
                         log.error("接收数据异常：", e);
@@ -83,11 +88,6 @@ public class SocketServer {
                 len = inputStream.read(bytes);
                 // 注意指定编码格式，发送方和接收方一定要统一，建议使用UTF-8
                 sb.append(new String(bytes, 0, len, "UTF-8"));
-            }
-            if (sb.length() == 0) {
-                testService.saveData("received null data");
-            } else {
-                testService.saveData(sb.toString());
             }
             //此处，需要关闭服务器的输出流，但不能使用inputStream.close().
             socket.shutdownInput();
