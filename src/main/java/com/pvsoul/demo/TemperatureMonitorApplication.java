@@ -1,11 +1,12 @@
 package com.pvsoul.demo;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
-//@EnableScheduling
+@MapperScan("com.pvsoul.demo.mapper")
 public class TemperatureMonitorApplication {
 
 
