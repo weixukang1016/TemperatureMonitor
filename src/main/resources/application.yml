@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://139.9.113.221:5432/test?stringtype=unspecified
+    url: jdbc:postgresql://192.168.51.5:5432/test?stringtype=unspecified
     username: pvuser
     password: Pvsu1125
 mybatis-plus:
