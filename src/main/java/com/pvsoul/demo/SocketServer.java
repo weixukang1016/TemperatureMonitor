@@ -51,24 +51,9 @@ public class SocketServer {
         while (started) {
             try {
                 Socket socket = serverSocket.accept();
-                Runnable runnable = () -> {
-                    try {
-                        //接收客户端数据
-                        StringBuilder sb = onMessage(socket);
-                        //处理逻辑：xmlStringToEsb为处理结果
-                        //返回给客户端
-                        if (sb.length() == 0) {
-                            sb.append("received null data");
-                        }
-                        testService.saveData(sb.toString());
-                        sendMessage(socket, sb.toString());
-                        socket.close();
-                    } catch (IOException e) {
-                        log.error("接收数据异常：", e);
-                    }
-                };
+                DeviceConnector deviceConnector = new DeviceConnector(socket, testService);
                 //接收线程返回结果
-                Future future = threadPool.submit(runnable);
+                Future future = threadPool.submit(deviceConnector);
                 log.info(future.isDone() + "--------");
             } catch (IOException e) {
                 log.error("接收线程异常：",e);
@@ -76,42 +61,4 @@ public class SocketServer {
         }
     }
 
-    private StringBuilder onMessage(Socket socket) {
-        byte[] bytes = new byte[1024];
-        int len;
-        try {
-            // 建立好连接后，从socket中获取输入流，并建立缓冲区进行读取
-            InputStream inputStream = socket.getInputStream();
-            StringBuilder sb = new StringBuilder();
-            while (inputStream.available() > 0) {
-                len = inputStream.read(bytes);
-                // 注意指定编码格式，发送方和接收方一定要统一，建议使用UTF-8
-                sb.append(new String(bytes, 0, len, "UTF-8"));
-            }
-            //此处，需要关闭服务器的输出流，但不能使用inputStream.close().
-            socket.shutdownInput();
-            return sb;
-        } catch (Exception e) {
-            log.error("系统错误：", e);
-        }
-        return null;
-    }
-
-    private static void sendMessage(Socket socket, String message) {
-        try {
-            //向客户端返回数据
-            OutputStream outputStream = socket.getOutputStream();
-            //首先需要计算得知消息的长度
-            byte[] sendBytes = message.getBytes("UTF-8");
-            //然后将消息的长度优先发送出去
-            outputStream.write(sendBytes.length >> 8);
-            outputStream.write(sendBytes.length);
-            //然后将消息再次发送出去
-            outputStream.write(sendBytes);
-            outputStream.flush();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
